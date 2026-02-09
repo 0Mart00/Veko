@@ -1,0 +1,16 @@
+CLASS Spaceship
+  FUNC init 0
+    SET basic_armor 10
+    SET engine_online 1
+  END_FUNC
+END_CLASS
+
+CLASS Titan : Spaceship
+  FUNC init 0
+    SET titan_armor 500
+  END_FUNC
+END_CLASS
+
+
+NEW Titan init
+NEW Spaceship init

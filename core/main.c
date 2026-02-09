@@ -29,9 +29,8 @@ int main() {
             dlclose(handle); // Bezárjuk, hogy a fájl felülírható legyen
         }
 
-        global_state.frame_count++;
-        usleep(500000); // 0.5 másodperces ciklusidő
+        global_state.info.frame_count++; 
+        usleep(500000); 
     }
-
     return 0;
 }

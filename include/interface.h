@@ -1,15 +1,54 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-// Ez a struktúra tárolja az adatokat, amik nem vesznek el kódcsere közben
+#define MAX_VARS 100
+#define MAX_FUNCS 50
+#define MAX_CLASSES 10
+#define MAX_OBJECTS 50  // Új: ennyi aktív objektumunk lehet
+#define MAX_LINES 20
+#define NAME_LEN 32
+
 typedef struct {
     double wealth;
-    float cruiser_position[3];
     int frame_count;
-    int reload_count;
+} BaseState;
+
+typedef struct {
+    char name[NAME_LEN];
+    double value;
+} CustomVar;
+
+typedef struct {
+    char name[NAME_LEN];
+    char lines[MAX_LINES][128];
+    int line_count;
+    int arg_count; 
+} CustomFunc;
+
+typedef struct {
+    char name[NAME_LEN];
+    char parent[NAME_LEN]; // Öröklődéshez
+    CustomFunc methods[MAX_FUNCS];
+    int method_count;
+} CustomClass;
+
+// Új: Egy konkrét objektum példány
+typedef struct {
+    char name[NAME_LEN];
+    char class_name[NAME_LEN];
+    double local_vars[10]; // Objektum-szintű adatok
+} CustomObject;
+
+typedef struct {
+    BaseState info;
+    CustomVar vars[MAX_VARS];
+    int var_count;
+    CustomClass classes[MAX_CLASSES];
+    int class_count;
+    CustomObject objects[MAX_OBJECTS]; // Objektum tároló
+    int object_count;
 } EngineState;
 
-// A függvény szignatúra, amit a modulban megvalósítasz
 typedef void (*logic_update_fn)(EngineState* state);
 
 #endif
