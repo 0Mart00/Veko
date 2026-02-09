@@ -13,11 +13,22 @@ typedef struct {
     int frame_count;
 } BaseState;
 
+typedef enum {
+    T_UNDEFINED = 0,
+    T_NUMBER,
+    T_STRING
+} VarType;
+
 typedef struct {
     char name[NAME_LEN];
-    double value;
+    VarType type;
+    
+    // Union: vagy számot, vagy szöveget tárol, egyszerre csak egyet
+    union {
+        double num_val;
+        char str_val[64];
+    } data;
 } CustomVar;
-
 typedef struct {
     char name[NAME_LEN];
     char lines[MAX_LINES][128];
@@ -48,6 +59,8 @@ typedef struct {
     CustomObject objects[MAX_OBJECTS]; // Objektum tároló
     int object_count;
 } EngineState;
+
+
 
 typedef void (*logic_update_fn)(EngineState* state);
 
