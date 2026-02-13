@@ -634,3 +634,33 @@ extern "C" void gui_help_marker(EngineState* state, const char* text) {
     }
     (void)state;
 }
+
+// ============================================================================
+// GUI CALL DISPATCHER
+// ============================================================================
+
+extern "C" void handle_gui_call(EngineState* state, char* method_name) {
+    // Core system
+    if (strcmp(method_name, "init") == 0) {
+        gui_init(state);
+    } else if (strcmp(method_name, "mainloop") == 0) {
+        gui_mainloop(state);
+    } else if (strcmp(method_name, "quit") == 0) {
+        gui_quit(state);
+    } else if (strcmp(method_name, "update") == 0) {
+        gui_update(state);
+    } else if (strcmp(method_name, "theme_dark") == 0) {
+        gui_theme_dark(state);
+    } else if (strcmp(method_name, "theme_light") == 0) {
+        gui_theme_light(state);
+    } else if (strcmp(method_name, "theme_classic") == 0) {
+        gui_theme_classic(state);
+    } else {
+        printf(">>> [GUI WARNING] Unknown GUI method: gui_%s()\n", method_name);
+    }
+}
+
+extern "C" void import_gui_module(EngineState* state) {
+    printf(">>> [GUI] Module imported\n");
+    state->import_count++;
+}
