@@ -1,0 +1,37 @@
+# Veko Dynamic Engine - FOR és WHILE ciklusok példa
+
+# Alapértékek beállítása
+counter = 0
+sum = 0
+
+# FOR ciklus példa: 0-tól 5-ig számol
+for i 0 5
+  counter = counter + 1
+  sum = sum + i
+end
+
+# Változók kiírása
+typeof(counter)
+typeof(sum)
+
+# WHILE ciklus példa: amíg x kisebb mint 50
+x = 0
+for j 1 10
+  x = x + j
+end
+
+# WHILE ciklus: duplázás amíg y < 100
+y = 1
+while y < 100
+  y = y * 2
+end
+
+# String változók
+name = "Veko"
+status = "running"
+
+# Matematikai műveletek
+result = sum + counter
+final = result * 2
+
+typeof(y)
