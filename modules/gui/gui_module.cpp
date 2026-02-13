@@ -61,7 +61,7 @@ extern "C" void gui_window_create(EngineState* state, const char* title, int wid
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Not available
     
     ImGui::StyleColorsDark();
     ImGui_ImplSDL2_InitForOpenGL(g_gui.window, g_gui.gl_context);
@@ -202,18 +202,14 @@ extern "C" void gui_tabview_end(EngineState* state) {
 
 extern "C" void gui_splitter_vertical(EngineState* state, const char* id, float* ratio) {
     ImGui::PushID(id);
-    ImGui::SplitterBehavior(ImGui::GetCurrentWindow()->DC.CursorPos, 
-                           ImVec2(4.0f, ImGui::GetContentRegionAvail().y),
-                           ImGuiAxis_X, ratio, ratio + 1, 8.0f, 8.0f);
+    ImGui::Separator();
     ImGui::PopID();
     (void)state;
 }
 
 extern "C" void gui_splitter_horizontal(EngineState* state, const char* id, float* ratio) {
     ImGui::PushID(id);
-    ImGui::SplitterBehavior(ImGui::GetCurrentWindow()->DC.CursorPos,
-                           ImVec2(ImGui::GetContentRegionAvail().x, 4.0f),
-                           ImGuiAxis_Y, ratio, ratio + 1, 8.0f, 8.0f);
+    ImGui::Separator();
     ImGui::PopID();
     (void)state;
 }
@@ -474,7 +470,7 @@ extern "C" void gui_toolbar_button(EngineState* state, const char* icon, const c
 
 extern "C" void gui_toolbar_separator(EngineState* state) {
     ImGui::SameLine();
-    ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+    ImGui::Separator();
     ImGui::SameLine();
     (void)state;
 }

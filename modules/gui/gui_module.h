@@ -14,6 +14,10 @@ typedef struct {
     char title[128];
 } GUIState;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // ============================================================================
 // CORE SYSTEM
 // ============================================================================
@@ -167,5 +171,9 @@ void gui_theme_classic(EngineState* state);
 // ============================================================================
 void gui_tooltip(EngineState* state, const char* text);
 void gui_help_marker(EngineState* state, const char* text);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
