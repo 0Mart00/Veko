@@ -1,84 +1,60 @@
 # ============================================================================
-# VEKO DYNAMIC ENGINE v3.0 - OOP + Math Module + Import System
+# VEKO GUI EXAMPLE - Tkinter-like syntax with SDL2 + Dear ImGui
 # ============================================================================
 
-# === IMPORT MATH MODULE ===
-import math
+# Import GUI module
+import gui
 
-# === MATH CONSTANTS ===
-pi_val = math.pi
-e_val = math.e
-tau_val = math.tau
+# Initialize GUI system
+gui.init()
 
-# === NUMBER-THEORETIC FUNCTIONS ===
-fact5 = math.factorial(5)
-gcd_val = math.gcd(48, 18)
-lcm_val = math.lcm(12, 18)
-isqrt_val = math.isqrt(50)
-comb_val = math.comb(5, 2)
-perm_val = math.perm(5, 2)
+# Create main window (like tkinter: root = Tk())
+gui.window("Veko GUI Demo", 800, 600)
 
-# === TRIGONOMETRIC FUNCTIONS ===
-sin_val = math.sin(math.pi)
-cos_val = math.cos(0)
-tan_val = math.tan(0)
-
-# === POWER AND LOGARITHMIC ===
-sqrt_val = math.sqrt(16)
-cbrt_val = math.cbrt(27)
-exp_val = math.exp(1)
-log_val = math.log(10)
-pow_val = math.pow(2, 10)
-
-# === ANGULAR CONVERSION ===
-deg_val = math.degrees(math.pi)
-rad_val = math.radians(180)
-
-# === HYPERBOLIC FUNCTIONS ===
-sinh_val = math.sinh(1)
-cosh_val = math.cosh(0)
-
-# === SPECIAL FUNCTIONS ===
-gamma_val = math.gamma(5)
-
-# === CLASS DEFINITION ===
-class Calculator:
-    def __init__(self):
-        result = 0
-    end
+# Main GUI loop
+while gui.is_running()
+    # Begin main frame
+    gui.frame_begin("Main Window")
     
-    def add(self, a, b):
-        sum = a + b
-        print(sum)
-    end
+    # Label widget (like tkinter: Label(root, text="..."))
+    gui.label("Welcome to Veko GUI!")
+    gui.label("This is a tkinter-like interface using SDL2 + Dear ImGui")
     
-    def multiply(self, x, y):
-        product = x * y
-        print(product)
-    end
+    gui.pack()
+    
+    # Button widget (like tkinter: Button(root, text="...", command=...))
+    gui.button("Click Me!", "on_button_click")
+    
+    gui.pack()
+    
+    # Entry widget (like tkinter: Entry(root, textvariable=...))
+    gui.label("Enter your name:")
+    gui.entry("user_name")
+    
+    gui.pack()
+    
+    # Checkbox (like tkinter: Checkbutton(root, text="...", variable=...))
+    gui.checkbox("Enable feature", "feature_enabled")
+    
+    gui.pack()
+    
+    # Slider (like tkinter: Scale(root, from_=..., to=..., variable=...))
+    gui.label("Adjust value:")
+    gui.slider("slider_value", 0, 100)
+    
+    gui.pack()
+    
+    # Display current values
+    gui.label("Current Values:")
+    print(user_name)
+    print(slider_value)
+    
+    # End main frame
+    gui.frame_end()
+    
+    # Update GUI
+    gui.update()
 end
 
-# === OBJECT CREATION ===
-calc = Calculator()
-
-# === METHOD CALLS ===
-calc.add()
-calc.multiply()
-
-# === FOR LOOP WITH MATH ===
-counter = 0
-for i 1 5
-    counter = counter + i
-    sq = math.sqrt(i)
-end
-
-# === PRINT RESULTS ===
-print(pi_val)
-print(fact5)
-print(sqrt_val)
-print(deg_val)
-print(counter)
-
-# === TYPE CHECKING ===
-type(pi_val)
-type(calc)
+# Cleanup
+gui.quit()
