@@ -1,0 +1,117 @@
+CXX = g++
+CC = gcc
+CFLAGS = -Wall -Wextra -fPIC
+CXXFLAGS = -Wall -Wextra -fPIC -std=c++11
+LDFLAGS = -shared
+MATH_LIB = -lm
+GUI_LIBS = -lSDL2 -lGL -ldl
+
+# Directories
+BUILD_DIR = build
+CORE_DIR = modules/core
+MATH_DIR = modules/math
+OOP_DIR = modules/oop
+BUILTINS_DIR = modules/builtins
+GUI_DIR = modules/gui
+IMGUI_DIR = external/imgui
+
+# Source files
+CORE_SRCS = $(CORE_DIR)/memory.c
+MATH_SRCS = $(MATH_DIR)/math_module.c
+OOP_SRCS = $(OOP_DIR)/class_system.c
+BUILTINS_SRCS = $(BUILTINS_DIR)/builtins.c
+GUI_SRCS = $(GUI_DIR)/gui_module.cpp
+MAIN_SRC = modules/logic.c
+
+# ImGui sources
+IMGUI_SRCS = $(IMGUI_DIR)/imgui.cpp \
+             $(IMGUI_DIR)/imgui_demo.cpp \
+             $(IMGUI_DIR)/imgui_draw.cpp \
+             $(IMGUI_DIR)/imgui_tables.cpp \
+             $(IMGUI_DIR)/imgui_widgets.cpp \
+             $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp \
+             $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+
+# Object files
+CORE_OBJS = $(BUILD_DIR)/memory.o
+MATH_OBJS = $(BUILD_DIR)/math_module.o
+OOP_OBJS = $(BUILD_DIR)/class_system.o
+BUILTINS_OBJS = $(BUILD_DIR)/builtins.o
+GUI_OBJS = $(BUILD_DIR)/gui_module.o
+MAIN_OBJ = $(BUILD_DIR)/logic_main.o
+
+IMGUI_OBJS = $(BUILD_DIR)/imgui.o \
+             $(BUILD_DIR)/imgui_demo.o \
+             $(BUILD_DIR)/imgui_draw.o \
+             $(BUILD_DIR)/imgui_tables.o \
+             $(BUILD_DIR)/imgui_widgets.o \
+             $(BUILD_DIR)/imgui_impl_sdl2.o \
+             $(BUILD_DIR)/imgui_impl_opengl3.o
+
+ALL_OBJS = $(CORE_OBJS) $(MATH_OBJS) $(OOP_OBJS) $(BUILTINS_OBJS) $(GUI_OBJS) $(MAIN_OBJ) $(IMGUI_OBJS)
+
+# Targets
+all: setup $(BUILD_DIR)/engine_host $(BUILD_DIR)/logic.so
+
+setup:
+	mkdir -p $(BUILD_DIR)
+
+$(BUILD_DIR)/engine_host: core/main.c
+	$(CC) core/main.c -o $(BUILD_DIR)/engine_host -ldl
+
+# Core module (C)
+$(BUILD_DIR)/memory.o: $(CORE_SRCS)
+	$(CC) $(CFLAGS) -c $(CORE_SRCS) -o $(BUILD_DIR)/memory.o
+
+# Math module (C)
+$(BUILD_DIR)/math_module.o: $(MATH_SRCS)
+	$(CC) $(CFLAGS) -c $(MATH_SRCS) -o $(BUILD_DIR)/math_module.o $(MATH_LIB)
+
+# OOP module (C)
+$(BUILD_DIR)/class_system.o: $(OOP_SRCS)
+	$(CC) $(CFLAGS) -c $(OOP_SRCS) -o $(BUILD_DIR)/class_system.o
+
+# Builtins module (C)
+$(BUILD_DIR)/builtins.o: $(BUILTINS_SRCS)
+	$(CC) $(CFLAGS) -c $(BUILTINS_SRCS) -o $(BUILD_DIR)/builtins.o $(MATH_LIB)
+
+# GUI module (C++)
+$(BUILD_DIR)/gui_module.o: $(GUI_SRCS)
+	$(CXX) $(CXXFLAGS) -c $(GUI_SRCS) -o $(BUILD_DIR)/gui_module.o -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+
+# Main logic (C)
+$(BUILD_DIR)/logic_main.o: $(MAIN_SRC)
+	$(CC) $(CFLAGS) -c $(MAIN_SRC) -o $(BUILD_DIR)/logic_main.o
+
+# ImGui objects (C++)
+$(BUILD_DIR)/imgui.o: $(IMGUI_DIR)/imgui.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/imgui.cpp -o $(BUILD_DIR)/imgui.o
+
+$(BUILD_DIR)/imgui_demo.o: $(IMGUI_DIR)/imgui_demo.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/imgui_demo.cpp -o $(BUILD_DIR)/imgui_demo.o
+
+$(BUILD_DIR)/imgui_draw.o: $(IMGUI_DIR)/imgui_draw.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/imgui_draw.cpp -o $(BUILD_DIR)/imgui_draw.o
+
+$(BUILD_DIR)/imgui_tables.o: $(IMGUI_DIR)/imgui_tables.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/imgui_tables.cpp -o $(BUILD_DIR)/imgui_tables.o
+
+$(BUILD_DIR)/imgui_widgets.o: $(IMGUI_DIR)/imgui_widgets.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/imgui_widgets.cpp -o $(BUILD_DIR)/imgui_widgets.o
+
+$(BUILD_DIR)/imgui_impl_sdl2.o: $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp -o $(BUILD_DIR)/imgui_impl_sdl2.o -I$(IMGUI_DIR)
+
+$(BUILD_DIR)/imgui_impl_opengl3.o: $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp -o $(BUILD_DIR)/imgui_impl_opengl3.o -I$(IMGUI_DIR)
+
+# Link all modules into shared library (use g++ for C++ linking)
+$(BUILD_DIR)/logic.so: $(ALL_OBJS)
+	$(CXX) $(LDFLAGS) $(ALL_OBJS) -o $(BUILD_DIR)/logic.so $(MATH_LIB) $(GUI_LIBS)
+
+clean:
+	rm -rf $(BUILD_DIR)/*
+
+module: $(BUILD_DIR)/logic.so
+
+.PHONY: all setup clean module

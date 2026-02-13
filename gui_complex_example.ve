@@ -1,0 +1,169 @@
+# ============================================================================
+# VEKO COMPLEX GUI - Mentális CAD Interface Demo
+# ============================================================================
+
+import gui
+
+# Initialize GUI
+gui.init()
+gui.window("Mentális CAD - Data Analysis System", 1280, 720)
+
+# Variables
+scan_active = 0
+wireframe_mode = 0
+rotation_angle = 0
+simulation_speed = 50
+algorithm_type = 0
+progress = 0.0
+
+# Main loop
+while gui.is_running()
+    
+    # ========================================================================
+    # MAIN MENU BAR
+    # ========================================================================
+    gui.menu_begin()
+    gui.menu_item("File", "on_file")
+    gui.menu_item("Edit", "on_edit")
+    gui.menu_item("View", "on_view")
+    gui.menu_separator()
+    gui.menu_item("Help", "on_help")
+    gui.menu_end()
+    
+    # ========================================================================
+    # TOOLBAR (Icon Buttons)
+    # ========================================================================
+    gui.toolbar_begin()
+    gui.iconbutton_tooltip("[S]", "Start Scan", "start_scan")
+    gui.iconbutton_tooltip("[P]", "Pause", "pause")
+    gui.iconbutton_tooltip("[R]", "Reset", "reset")
+    gui.toolbar_separator()
+    gui.iconbutton_tooltip("[3D]", "3D View", "view_3d")
+    gui.iconbutton_tooltip("[2D]", "2D View", "view_2d")
+    gui.toolbar_separator()
+    gui.iconbutton_tooltip("[+]", "Zoom In", "zoom_in")
+    gui.iconbutton_tooltip("[-]", "Zoom Out", "zoom_out")
+    gui.toolbar_end()
+    
+    gui.separator()
+    
+    # ========================================================================
+    # TAB VIEW (Multiple Panels)
+    # ========================================================================
+    gui.tabview_begin("main_tabs")
+    
+    # --- TAB 1: 3D VIEWPORT ---
+    if gui.tabview_item("3D Viewport")
+        gui.label_colored("3D Rendering Area", 0.2, 1.0, 0.2)
+        gui.viewport_begin("3d_view", 800, 500)
+        gui.label("OpenGL/Vulkan rendering here...")
+        gui.viewport_end()
+    end
+    
+    # --- TAB 2: DATA ANALYSIS ---
+    if gui.tabview_item("Data Analysis")
+        gui.label_colored("Real-time Data Visualization", 0.2, 0.5, 1.0)
+        
+        # Progress Bar
+        gui.progressbar_labeled("Scan Progress", progress)
+        progress = progress + 0.001
+        if progress > 1.0
+            progress = 0.0
+        end
+        
+        # Data Table
+        gui.label("Memory Structure:")
+        gui.table_begin("data_table", 3)
+        gui.table_header("Address")
+        gui.table_header("Value")
+        gui.table_header("Type")
+        
+        gui.table_row()
+        gui.table_cell("0x1000")
+        gui.table_cell("42.5")
+        gui.table_cell("float")
+        
+        gui.table_row()
+        gui.table_cell("0x1004")
+        gui.table_cell("100")
+        gui.table_cell("int")
+        
+        gui.table_end()
+    end
+    
+    # --- TAB 3: SETTINGS ---
+    if gui.tabview_item("Settings")
+        gui.label_colored("Configuration Panel", 1.0, 0.8, 0.2)
+        
+        # Checkboxes
+        gui.checkbox("Scan Active", "scan_active")
+        gui.checkbox("Wireframe Mode", "wireframe_mode")
+        
+        gui.separator()
+        
+        # Sliders
+        gui.label("Rotation Angle:")
+        gui.slider_angle("rotation_angle")
+        
+        gui.label("Simulation Speed:")
+        gui.slider_int("simulation_speed", 0, 100)
+        
+        gui.separator()
+        
+        # SpinBox
+        gui.label("Fine Tuning:")
+        gui.spinbox("fine_value", 0, 100, 0.1)
+        
+        # Dropdown
+        gui.label("Algorithm Type:")
+        gui.combobox("algorithm_type", "Fast\0Accurate\0Balanced\0")
+    end
+    
+    gui.tabview_end()
+    
+    # ========================================================================
+    # SIDE PANEL (ScrollBox with Controls)
+    # ========================================================================
+    gui.sameline()
+    
+    gui.panel_begin("Control Panel", 300, 600)
+    
+    gui.label_colored("Control Panel", 1.0, 1.0, 0.0)
+    gui.separator()
+    
+    # Text Input
+    gui.label("Command Input:")
+    gui.textbox("##cmd", "command_input", 280)
+    
+    gui.spacing()
+    
+    # Buttons
+    gui.button("Execute", "execute_command")
+    gui.button_colored("Stop", "stop_command", 1.0, 0.2, 0.2)
+    
+    gui.separator()
+    
+    # ScrollBox with Log
+    gui.label("System Log:")
+    gui.scrollbox_begin("log_scroll", 280, 300)
+    gui.label("[INFO] System initialized")
+    gui.label("[INFO] Scan started")
+    gui.label("[WARN] Memory threshold reached")
+    gui.label("[INFO] Processing data...")
+    gui.label("[INFO] Rendering complete")
+    gui.scrollbox_end()
+    
+    gui.panel_end()
+    
+    # ========================================================================
+    # STATUS BAR
+    # ========================================================================
+    gui.separator()
+    gui.label("Status: ONLINE | FPS: 60 | Memory: 45%")
+    
+    # Update GUI
+    gui.update()
+end
+
+# Cleanup
+gui.quit()
