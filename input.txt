@@ -1,6 +1,5 @@
 # Simple test
-import math
 x = 5
 y = 10
-z = math.add(x, y)
+z = x + y
 print(z)

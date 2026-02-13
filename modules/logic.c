@@ -67,7 +67,11 @@ void execute_line(EngineState* state, char* line) {
     }
 
     // Object creation: obj = ClassName()
-    if (sscanf(line, "%s = %[^(]()", obj_name, class_name) == 2) {
+    // Additional check: line must end with () to be valid object creation
+    int line_len = strlen(line);
+    if (sscanf(line, "%s = %[^(]()", obj_name, class_name) == 2 &&
+        line_len >= 2 && 
+        line[line_len-1] == ')' && line[line_len-2] == '(') {
         create_object_instance(state, obj_name, class_name);
         return;
     }
