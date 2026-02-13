@@ -5,7 +5,7 @@
 #include "math/math_module.h"
 #include "oop/class_system.h"
 #include "builtins/builtins.h"
-
+#include "gui/gui_module.h"
 // Forward declaration
 void execute_line(EngineState* state, char* line);
 
@@ -24,9 +24,17 @@ void execute_line(EngineState* state, char* line) {
         if (strcmp(func_name, "math") == 0) {
             import_math_module(state);
         }
+        else if (strcmp(func_name, "gui") == 0) {
+        import_gui_module(state); // Ezt a függvényt a gui_module.h-ból kell hívni
+    }
         return;
     }
-
+    // 2. A gui_init() és egyéb direkt hívások kezelése
+    if (sscanf(line, "gui_%[^(]()", method_name) == 1) {
+        // Itt hívod meg a gui_module-ban definiált funkciókat
+        handle_gui_call(state, method_name); 
+        return;
+    }
     // Assembly
     if (sscanf(line, "__asm__(\"%[^\"]\")", asm_code) == 1 || 
         sscanf(line, "asm(\"%[^\"]\")", asm_code) == 1) {

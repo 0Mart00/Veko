@@ -1,10 +1,11 @@
 CXX = g++
 CC = gcc
 CFLAGS = -Wall -Wextra -fPIC
-CXXFLAGS = -Wall -Wextra -fPIC -std=c++11 -I/usr/include/SDL2
+CXXFLAGS = -Wall -Wextra -fPIC -std=c++11 `pkg-config --cflags sdl2 gl`
+GUI_LIBS = `pkg-config --libs sdl2 gl` -ldl
 LDFLAGS = -shared
 MATH_LIB = -lm
-GUI_LIBS = -lSDL2 -lGL -ldl
+
 
 # Directories
 BUILD_DIR = build
@@ -105,10 +106,10 @@ $(BUILD_DIR)/imgui_impl_sdl2.o: $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp
 $(BUILD_DIR)/imgui_impl_opengl3.o: $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp -o $(BUILD_DIR)/imgui_impl_opengl3.o -I$(IMGUI_DIR)
 
-# Link all modules into shared library (use g++ for C++ linking)
-$(BUILD_DIR)/logic.so: $(ALL_OBJS)
-	$(CXX) $(LDFLAGS) $(ALL_OBJS) -o $(BUILD_DIR)/logic.so $(MATH_LIB) $(GUI_LIBS)
 
+# Összes objektum linkelése a megosztott könyvtárba
+$(BUILD_DIR)/logic.so: $(ALL_OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(MATH_LIB) $(GUI_LIBS)
 clean:
 	rm -rf $(BUILD_DIR)/*
 

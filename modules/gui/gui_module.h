@@ -1,6 +1,8 @@
 #ifndef GUI_MODULE_H
 #define GUI_MODULE_H
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "../../include/interface.h"
 #include <SDL2/SDL.h>
 
@@ -14,9 +16,8 @@ typedef struct {
     char title[128];
 } GUIState;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void import_gui_module(EngineState* state);
+void handle_gui_call(EngineState* state, char* method_name);
 
 // ============================================================================
 // CORE SYSTEM
