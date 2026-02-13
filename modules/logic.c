@@ -147,6 +147,7 @@ void update(EngineState* state) {
     printf("Classes: %d | Objects: %d | Imports: %d\n", 
            state->class_count, state->object_count, state->import_count);
     printf("--------------------------------------------\n");
+    fflush(stdout);
     for (int i = 0; i < state->var_count && i < 20; i++) {
         if (state->vars[i].type == T_NUMBER)
             printf("  (float) %-15s = %.4f\n", state->vars[i].name, state->vars[i].data.num_val);
