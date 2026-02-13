@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <string.h>
 #include "../include/interface.h"
 
 const char* MODULE_PATH = "./build/logic.so";
@@ -18,7 +19,13 @@ time_t get_file_time(const char* path) {
 }
 
 int main() {
-    EngineState global_state = {0};
+    // Allocate EngineState on heap instead of stack (33 MB is too large for stack)
+    EngineState* global_state = (EngineState*)calloc(1, sizeof(EngineState));
+    if (!global_state) {
+        fprintf(stderr, "Failed to allocate memory for EngineState\n");
+        return 1;
+    }
+    
     void* handle = NULL;
     logic_update_fn update = NULL;
     time_t last_mod_time = 0;
@@ -38,22 +45,25 @@ int main() {
             handle = dlopen(MODULE_PATH, RTLD_NOW);
             
             if (!handle) {
-                fprintf(stderr, ">>> [ERROR] Waiting for module: %s\n", dlerror());
+                fprintf(stderr, "Waiting for module: %s\n", dlerror());
             } else {
                 update = (logic_update_fn)dlsym(handle, "update");
+                
+                if (update) {
+                    update(global_state); // Átadjuk a memóriát a modulnak
+                }
+                
                 last_mod_time = current_mod_time;
             }
         }
 
-        // Ha a modul be van töltve, folyamatosan futtatjuk az update-et
-        if (update) {
-            update(&global_state);
-        }
-
-        global_state.info.frame_count++; 
-        
-        // Ciklus sebessége (16ms = kb. 60 FPS a GUI-nak)
-        usleep(16000); 
+        global_state->info.frame_count++; 
+        usleep(500000); 
     }
+    
+    if (handle) {
+        dlclose(handle);
+    }
+    free(global_state);
     return 0;
 }
