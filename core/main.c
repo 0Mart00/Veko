@@ -2,12 +2,19 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <string.h>
 #include "../include/interface.h"
 
 const char* MODULE_PATH = "./build/logic.so";
 
 int main() {
-    EngineState global_state = {0}; // Itt lakik az összes adatod
+    // Allocate EngineState on heap instead of stack (33 MB is too large for stack)
+    EngineState* global_state = (EngineState*)calloc(1, sizeof(EngineState));
+    if (!global_state) {
+        fprintf(stderr, "Failed to allocate memory for EngineState\n");
+        return 1;
+    }
+    
     void* handle = NULL;
     logic_update_fn update = NULL;
 
@@ -23,14 +30,16 @@ int main() {
             update = (logic_update_fn)dlsym(handle, "update");
             
             if (update) {
-                update(&global_state); // Átadjuk a memóriát a modulnak
+                update(global_state); // Átadjuk a memóriát a modulnak
             }
             
             dlclose(handle); // Bezárjuk, hogy a fájl felülírható legyen
         }
 
-        global_state.info.frame_count++; 
+        global_state->info.frame_count++; 
         usleep(500000); 
     }
+    
+    free(global_state);
     return 0;
 }
