@@ -23,10 +23,9 @@ void execute_line(EngineState* state, char* line) {
     if (sscanf(line, "import %s", func_name) == 1) {
         if (strcmp(func_name, "math") == 0) {
             import_math_module(state);
+        } else if (strcmp(func_name, "gui") == 0) {
+            import_gui_module(state);
         }
-        else if (strcmp(func_name, "gui") == 0) {
-        import_gui_module(state); // Ezt a függvényt a gui_module.h-ból kell hívni
-    }
         return;
     }
     // 2. A gui_init() és egyéb direkt hívások kezelése
