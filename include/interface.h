@@ -4,8 +4,9 @@
 #define MAX_VARS 100
 #define MAX_FUNCS 50
 #define MAX_CLASSES 10
-#define MAX_OBJECTS 50  // Új: ennyi aktív objektumunk lehet
+#define MAX_OBJECTS 50
 #define MAX_LINES 20
+#define MAX_LIST_SIZE 100
 #define NAME_LEN 32
 
 typedef struct {
@@ -16,19 +17,38 @@ typedef struct {
 typedef enum {
     T_UNDEFINED = 0,
     T_NUMBER,
-    T_STRING
+    T_STRING,
+    T_LIST,
+    T_DICT,
+    T_BOOL
 } VarType;
+
+// Lista típus
+typedef struct {
+    double items[MAX_LIST_SIZE];
+    int size;
+} VarList;
+
+// Dictionary típus (egyszerűsített)
+typedef struct {
+    char keys[MAX_LIST_SIZE][NAME_LEN];
+    double values[MAX_LIST_SIZE];
+    int size;
+} VarDict;
 
 typedef struct {
     char name[NAME_LEN];
     VarType type;
     
-    // Union: vagy számot, vagy szöveget tárol, egyszerre csak egyet
     union {
         double num_val;
         char str_val[64];
+        VarList list_val;
+        VarDict dict_val;
+        int bool_val;
     } data;
 } CustomVar;
+
 typedef struct {
     char name[NAME_LEN];
     char lines[MAX_LINES][128];
@@ -38,16 +58,15 @@ typedef struct {
 
 typedef struct {
     char name[NAME_LEN];
-    char parent[NAME_LEN]; // Öröklődéshez
+    char parent[NAME_LEN];
     CustomFunc methods[MAX_FUNCS];
     int method_count;
 } CustomClass;
 
-// Új: Egy konkrét objektum példány
 typedef struct {
     char name[NAME_LEN];
     char class_name[NAME_LEN];
-    double local_vars[10]; // Objektum-szintű adatok
+    double local_vars[10];
 } CustomObject;
 
 typedef struct {
@@ -56,11 +75,9 @@ typedef struct {
     int var_count;
     CustomClass classes[MAX_CLASSES];
     int class_count;
-    CustomObject objects[MAX_OBJECTS]; // Objektum tároló
+    CustomObject objects[MAX_OBJECTS];
     int object_count;
 } EngineState;
-
-
 
 typedef void (*logic_update_fn)(EngineState* state);
 
