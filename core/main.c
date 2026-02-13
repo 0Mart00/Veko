@@ -31,6 +31,7 @@ int main() {
     time_t last_mod_time = 0;
 
     printf("--- Dynamic Logic Engine Started ---\n");
+    fflush(stdout);
 
     while (1) {
         time_t current_mod_time = get_file_time(MODULE_PATH);
@@ -40,21 +41,23 @@ int main() {
             if (handle) {
                 dlclose(handle); // Zárjuk be a régit
                 printf(">>> [HOT-RELOAD] Reloading module...\n");
+                fflush(stdout);
             }
             
             handle = dlopen(MODULE_PATH, RTLD_NOW);
             
             if (!handle) {
                 fprintf(stderr, "Waiting for module: %s\n", dlerror());
+                fflush(stderr);
             } else {
                 update = (logic_update_fn)dlsym(handle, "update");
-                
-                if (update) {
-                    update(global_state); // Átadjuk a memóriát a modulnak
-                }
-                
                 last_mod_time = current_mod_time;
             }
+        }
+
+        // Call update every frame (not just when module loads!)
+        if (update) {
+            update(global_state);
         }
 
         global_state->info.frame_count++; 
