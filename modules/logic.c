@@ -60,7 +60,7 @@ void execute_line(EngineState* state, char* line) {
     }
 
     // GUI module method call with parameters: gui.window("title", width, height)
-    char gui_title[128], gui_arg1[64], gui_arg2[64];
+    char gui_title[128], gui_arg1[64], gui_arg2[64], gui_arg3[64], gui_arg4[64];
     if (sscanf(line, "gui.window(\"%[^\"]\", %[^,], %[^)])", gui_title, gui_arg1, gui_arg2) == 3) {
         trim(gui_arg1);
         trim(gui_arg2);
@@ -70,7 +70,215 @@ void execute_line(EngineState* state, char* line) {
         return;
     }
 
-    // GUI module method call: gui.method()
+    // gui.label("text")
+    if (sscanf(line, "gui.label(\"%[^\"]\")", gui_title) == 1) {
+        gui_label(state, gui_title);
+        return;
+    }
+
+    // gui.label_colored("text", r, g, b)
+    if (sscanf(line, "gui.label_colored(\"%[^\"]\", %[^,], %[^,], %[^)])", gui_title, gui_arg1, gui_arg2, gui_arg3) == 4) {
+        trim(gui_arg1); trim(gui_arg2); trim(gui_arg3);
+        float r = atof(gui_arg1), g = atof(gui_arg2), b = atof(gui_arg3);
+        gui_label_colored(state, gui_title, r, g, b);
+        return;
+    }
+
+    // gui.button("text", "callback")
+    char gui_callback[128];
+    if (sscanf(line, "gui.button(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_callback) == 2) {
+        gui_button(state, gui_title, gui_callback);
+        return;
+    }
+
+    // gui.button_colored("text", "callback", r, g, b)
+    if (sscanf(line, "gui.button_colored(\"%[^\"]\", \"%[^\"]\", %[^,], %[^,], %[^)])", gui_title, gui_callback, gui_arg1, gui_arg2, gui_arg3) == 5) {
+        trim(gui_arg1); trim(gui_arg2); trim(gui_arg3);
+        float r = atof(gui_arg1), g = atof(gui_arg2), b = atof(gui_arg3);
+        gui_button_colored(state, gui_title, gui_callback, r, g, b);
+        return;
+    }
+
+    // gui.textbox("label", "var_name", width)
+    char gui_varname[128];
+    if (sscanf(line, "gui.textbox(\"%[^\"]\", \"%[^\"]\", %[^)])", gui_title, gui_varname, gui_arg1) == 3) {
+        trim(gui_arg1);
+        int width = atoi(gui_arg1);
+        gui_textbox(state, gui_title, gui_varname, width);
+        return;
+    }
+
+    // gui.textbox_multiline("label", "var_name", width, height)
+    if (sscanf(line, "gui.textbox_multiline(\"%[^\"]\", \"%[^\"]\", %[^,], %[^)])", gui_title, gui_varname, gui_arg1, gui_arg2) == 4) {
+        trim(gui_arg1); trim(gui_arg2);
+        int width = atoi(gui_arg1), height = atoi(gui_arg2);
+        gui_textbox_multiline(state, gui_title, gui_varname, width, height);
+        return;
+    }
+
+    // gui.inputfield("label", "var_name")
+    if (sscanf(line, "gui.inputfield(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_varname) == 2) {
+        gui_inputfield(state, gui_title, gui_varname);
+        return;
+    }
+
+    // gui.slider("var_name", min, max)
+    if (sscanf(line, "gui.slider(\"%[^\"]\", %[^,], %[^)])", gui_varname, gui_arg1, gui_arg2) == 3) {
+        trim(gui_arg1); trim(gui_arg2);
+        double min = atof(gui_arg1), max = atof(gui_arg2);
+        gui_slider(state, gui_varname, min, max);
+        return;
+    }
+
+    // gui.slider_int("var_name", min, max)
+    if (sscanf(line, "gui.slider_int(\"%[^\"]\", %[^,], %[^)])", gui_varname, gui_arg1, gui_arg2) == 3) {
+        trim(gui_arg1); trim(gui_arg2);
+        int min = atoi(gui_arg1), max = atoi(gui_arg2);
+        gui_slider_int(state, gui_varname, min, max);
+        return;
+    }
+
+    // gui.slider_angle("var_name")
+    if (sscanf(line, "gui.slider_angle(\"%[^\"]\")", gui_varname) == 1) {
+        gui_slider_angle(state, gui_varname);
+        return;
+    }
+
+    // gui.checkbox("text", "var_name")
+    if (sscanf(line, "gui.checkbox(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_varname) == 2) {
+        gui_checkbox(state, gui_title, gui_varname);
+        return;
+    }
+
+    // gui.toggle("label", "var_name")
+    if (sscanf(line, "gui.toggle(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_varname) == 2) {
+        gui_toggle(state, gui_title, gui_varname);
+        return;
+    }
+
+    // gui.progressbar(fraction, width, height)
+    if (sscanf(line, "gui.progressbar(%[^,], %[^,], %[^)])", gui_arg1, gui_arg2, gui_arg3) == 3) {
+        trim(gui_arg1); trim(gui_arg2); trim(gui_arg3);
+        float fraction = atof(gui_arg1);
+        int width = atoi(gui_arg2), height = atoi(gui_arg3);
+        gui_progressbar(state, fraction, width, height);
+        return;
+    }
+
+    // gui.progressbar_labeled("label", fraction)
+    if (sscanf(line, "gui.progressbar_labeled(\"%[^\"]\", %[^)])", gui_title, gui_arg1) == 2) {
+        trim(gui_arg1);
+        float fraction = atof(gui_arg1);
+        gui_progressbar_labeled(state, gui_title, fraction);
+        return;
+    }
+
+    // gui.frame_begin("title")
+    if (sscanf(line, "gui.frame_begin(\"%[^\"]\")", gui_title) == 1) {
+        gui_frame_begin(state, gui_title);
+        return;
+    }
+
+    // gui.panel_begin("title", width, height)
+    if (sscanf(line, "gui.panel_begin(\"%[^\"]\", %[^,], %[^)])", gui_title, gui_arg1, gui_arg2) == 3) {
+        trim(gui_arg1); trim(gui_arg2);
+        int width = atoi(gui_arg1), height = atoi(gui_arg2);
+        gui_panel_begin(state, gui_title, width, height);
+        return;
+    }
+
+    // gui.table_begin("id", columns)
+    if (sscanf(line, "gui.table_begin(\"%[^\"]\", %[^)])", gui_title, gui_arg1) == 2) {
+        trim(gui_arg1);
+        int columns = atoi(gui_arg1);
+        gui_table_begin(state, gui_title, columns);
+        return;
+    }
+
+    // gui.table_header("label")
+    if (sscanf(line, "gui.table_header(\"%[^\"]\")", gui_title) == 1) {
+        gui_table_header(state, gui_title);
+        return;
+    }
+
+    // gui.table_cell("text")
+    if (sscanf(line, "gui.table_cell(\"%[^\"]\")", gui_title) == 1) {
+        gui_table_cell(state, gui_title);
+        return;
+    }
+
+    // gui.menu_item("text", "callback")
+    if (sscanf(line, "gui.menu_item(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_callback) == 2) {
+        gui_menu_item(state, gui_title, gui_callback);
+        return;
+    }
+
+    // gui.messagebox("title", "message")
+    char gui_message[256];
+    if (sscanf(line, "gui.messagebox(\"%[^\"]\", \"%[^\"]\")", gui_title, gui_message) == 2) {
+        gui_messagebox(state, gui_title, gui_message);
+        return;
+    }
+
+    // gui.askstring("title", "prompt", "var_name")
+    char gui_prompt[256];
+    if (sscanf(line, "gui.askstring(\"%[^\"]\", \"%[^\"]\", \"%[^\"]\")", gui_title, gui_prompt, gui_varname) == 3) {
+        gui_askstring(state, gui_title, gui_prompt, gui_varname);
+        return;
+    }
+
+    // gui.confirm_dialog("title", "message", "callback_yes", "callback_no")
+    char gui_cb_yes[128], gui_cb_no[128];
+    if (sscanf(line, "gui.confirm_dialog(\"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\")", gui_title, gui_message, gui_cb_yes, gui_cb_no) == 4) {
+        gui_confirm_dialog(state, gui_title, gui_message, gui_cb_yes, gui_cb_no);
+        return;
+    }
+
+    // gui.set_color(r, g, b, a)
+    if (sscanf(line, "gui.set_color(%[^,], %[^,], %[^,], %[^)])", gui_arg1, gui_arg2, gui_arg3, gui_arg4) == 4) {
+        trim(gui_arg1); trim(gui_arg2); trim(gui_arg3); trim(gui_arg4);
+        float r = atof(gui_arg1), g = atof(gui_arg2), b = atof(gui_arg3), a = atof(gui_arg4);
+        gui_set_color(state, r, g, b, a);
+        return;
+    }
+
+    // gui.set_font_size(size)
+    if (sscanf(line, "gui.set_font_size(%[^)])", gui_arg1) == 1) {
+        trim(gui_arg1);
+        float size = atof(gui_arg1);
+        gui_set_font_size(state, size);
+        return;
+    }
+
+    // gui.indent(amount)
+    if (sscanf(line, "gui.indent(%[^)])", gui_arg1) == 1) {
+        trim(gui_arg1);
+        float amount = atof(gui_arg1);
+        gui_indent(state, amount);
+        return;
+    }
+
+    // gui.unindent(amount)
+    if (sscanf(line, "gui.unindent(%[^)])", gui_arg1) == 1) {
+        trim(gui_arg1);
+        float amount = atof(gui_arg1);
+        gui_unindent(state, amount);
+        return;
+    }
+
+    // gui.help_marker("text")
+    if (sscanf(line, "gui.help_marker(\"%[^\"]\")", gui_title) == 1) {
+        gui_help_marker(state, gui_title);
+        return;
+    }
+
+    // gui.tooltip("text")
+    if (sscanf(line, "gui.tooltip(\"%[^\"]\")", gui_title) == 1) {
+        gui_tooltip(state, gui_title);
+        return;
+    }
+
+    // GUI module method call: gui.method() - parameterless methods
     if (sscanf(line, "gui.%[^(]()", method_name) == 1) {
         handle_gui_call(state, method_name);
         return;

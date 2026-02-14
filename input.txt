@@ -1,6 +1,4 @@
 import gui
 gui.init()
-gui.window("Test", 800, 600)
-x = 5
-y = 10
-print(x)
+gui.window("Veko GUI Test", 800, 600)
+gui.label("Hello World!")

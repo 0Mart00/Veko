@@ -1,0 +1,161 @@
+# VEKO GUI MODULE - HASZNÁLATI ÚTMUTATÓ
+
+## 1. ALAPVETŐ INICIALIZÁLÁS
+
+```
+import gui
+gui.init()
+gui.window("Ablak címe", 800, 600)
+```
+
+## 2. ADATMEGJELENÍTŐK (Label, Text)
+
+```
+gui.label("Egyszerű szöveg")
+gui.label_colored("Színes szöveg", 1.0, 0.0, 0.0)  # Piros szöveg (R, G, B)
+```
+
+## 3. GOMBOK
+
+```
+gui.button("Kattints ide", "callback_function")
+gui.button_colored("Színes gomb", "callback", 0.0, 1.0, 0.0)  # Zöld gomb
+```
+
+## 4. BEVITELI MEZŐK
+
+```
+gui.textbox("Név:", "user_name", 200)
+gui.textbox_multiline("Leírás:", "description", 300, 100)
+gui.inputfield("Email:", "user_email")
+```
+
+## 5. CSÚSZKÁK (Sliders)
+
+```
+gui.slider("volume", 0.0, 100.0)
+gui.slider_int("count", 0, 10)
+gui.slider_angle("rotation")
+```
+
+## 6. CHECKBOX ÉS TOGGLE
+
+```
+gui.checkbox("Elfogadom a feltételeket", "accept_terms")
+gui.toggle("Dark Mode", "dark_mode_enabled")
+```
+
+## 7. PROGRESS BAR
+
+```
+gui.progressbar(0.75, 300, 20)  # 75% progress
+gui.progressbar_labeled("Betöltés...", 0.5)
+```
+
+## 8. LAYOUT ELEMEK
+
+```
+gui.separator()
+gui.spacing()
+gui.sameline()
+gui.indent(20.0)
+gui.unindent(20.0)
+```
+
+## 9. KONTÉNEREK
+
+```
+gui.frame_begin("Beállítások")
+gui.label("Tartalom itt")
+gui.frame_end()
+
+gui.panel_begin("Oldalsáv", 200, 400)
+gui.label("Panel tartalom")
+gui.panel_end()
+```
+
+## 10. TÁBLÁZATOK
+
+```
+gui.table_begin("adatok", 3)
+gui.table_header("Név")
+gui.table_header("Kor")
+gui.table_header("Város")
+gui.table_row()
+gui.table_cell("János")
+gui.table_cell("25")
+gui.table_cell("Budapest")
+gui.table_end()
+```
+
+## 11. MENÜK
+
+```
+gui.menu_begin()
+gui.menu_item("Új fájl", "new_file")
+gui.menu_separator()
+gui.menu_item("Kilépés", "exit")
+gui.menu_end()
+```
+
+## 12. DIALÓGUSOK
+
+```
+gui.messagebox("Figyelem", "Ez egy üzenet!")
+gui.askstring("Kérdés", "Mi a neved?", "user_name")
+gui.confirm_dialog("Megerősítés", "Biztosan törlöd?", "yes_callback", "no_callback")
+```
+
+## 13. TÉMÁK ÉS STÍLUSOK
+
+```
+gui.theme_dark()
+gui.theme_light()
+gui.theme_classic()
+gui.set_color(0.2, 0.3, 0.4, 1.0)
+gui.set_font_size(1.5)
+```
+
+## 14. TOOLTIP ÉS HELP
+
+```
+gui.help_marker("Ez egy súgó szöveg")
+gui.tooltip("Tooltip szöveg")
+```
+
+## TELJES PÉLDA PROGRAM:
+
+```
+import gui
+
+gui.init()
+gui.window("Veko GUI Demo", 800, 600)
+
+gui.label("Üdvözöllek a Veko GUI-ban!")
+gui.separator()
+
+gui.button("Kattints ide", "button_clicked")
+gui.sameline()
+gui.button_colored("Színes gomb", "colored_clicked", 1.0, 0.5, 0.0)
+
+gui.spacing()
+gui.textbox("Név:", "user_name", 200)
+gui.slider("Hangerő", 0.0, 100.0)
+gui.checkbox("Elfogadom", "accept")
+
+gui.separator()
+gui.progressbar(0.65, 400, 25)
+
+gui.mainloop()
+```
+
+## MEGJEGYZÉSEK:
+
+1. **Minden GUI hívás előtt** kell `gui.init()` és `gui.window()`
+2. **Paraméterek típusai:**
+   - Szöveg: "idézőjelek között"
+   - Számok: 100, 3.14, stb.
+   - Színek: 0.0-1.0 között (R, G, B)
+3. **Mainloop:** `gui.mainloop()` indítja a GUI event loop-ot
+4. **Változók:** A GUI elemek változóneveket használnak (pl. "user_name")
+

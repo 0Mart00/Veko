@@ -1,0 +1,11 @@
+import gui
+gui.init()
+gui.window("Test", 800, 600)
+gui.label("Hello World!")
+gui.label_colored("Red Text", 1.0, 0.0, 0.0)
+gui.button("Click Me", "callback")
+gui.separator()
+gui.textbox("Name:", "user_name", 200)
+gui.slider("volume", 0.0, 100.0)
+gui.checkbox("Accept", "accept_terms")
+gui.progressbar(0.75, 300, 20)
