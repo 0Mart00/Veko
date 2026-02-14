@@ -1,5 +1,6 @@
-# Simple test
+import gui
+gui.init()
+gui.window("Test", 800, 600)
 x = 5
 y = 10
-z = x + y
-print(z)
+print(x)
