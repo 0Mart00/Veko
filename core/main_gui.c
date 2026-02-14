@@ -24,6 +24,7 @@ typedef void (*gui_mainloop_fn)(EngineState*);
 typedef void (*gui_quit_fn)(EngineState*);
 typedef int (*gui_is_running_fn)(EngineState*);
 typedef void (*logic_update_fn)(EngineState*);
+typedef void (*gui_window_create_fn)(EngineState*, const char*, int, int);
 
 int main() {
     // Allocate EngineState on heap
@@ -39,6 +40,7 @@ int main() {
     gui_mainloop_fn gui_mainloop = NULL;
     gui_quit_fn gui_quit = NULL;
     gui_is_running_fn gui_is_running = NULL;
+    gui_window_create_fn gui_window_create = NULL;
     time_t last_mod_time = 0;
 
     printf("--- Veko Dynamic Engine v3.0 (GUI Mode) ---\n");
@@ -58,6 +60,7 @@ int main() {
     gui_mainloop = (gui_mainloop_fn)dlsym(handle, "gui_mainloop");
     gui_quit = (gui_quit_fn)dlsym(handle, "gui_quit");
     gui_is_running = (gui_is_running_fn)dlsym(handle, "gui_is_running");
+    gui_window_create = (gui_window_create_fn)dlsym(handle, "gui_window_create");
     
     if (!update) {
         fprintf(stderr, "Failed to find 'update' function in module\n");
@@ -68,15 +71,20 @@ int main() {
 
     last_mod_time = get_file_time(MODULE_PATH);
 
-    // Execute input.txt once to initialize GUI
-    printf(">>> [GUI] Executing input.txt to initialize GUI...\n");
-    update(global_state);
+    // Initialize GUI manually (don't call update yet)
+    printf(">>> [GUI] Initializing GUI system...\n");
+    if (gui_init) {
+        gui_init(global_state);
+    }
+    
+    // Create window with default parameters
+    if (gui_window_create) {
+        gui_window_create(global_state, "Veko Engine v3.0", 800, 600);
+    }
     
     // Check if GUI was initialized
     if (!gui_is_running || !gui_is_running(global_state)) {
-        printf(">>> [GUI] No GUI initialized. Make sure input.txt contains:\n");
-        printf("    gui.init()\n");
-        printf("    gui.window(\"Title\", 800, 600)\n");
+        printf(">>> [GUI] Failed to initialize GUI\n");
         dlclose(handle);
         free(global_state);
         return 1;
@@ -86,8 +94,8 @@ int main() {
     fflush(stdout);
 
     // GUI mainloop with hot-reload support
+    // The mainloop will call update() every frame to render GUI elements
     if (gui_mainloop) {
-        // Run GUI mainloop (blocking)
         gui_mainloop(global_state);
     } else {
         fprintf(stderr, ">>> [GUI ERROR] gui_mainloop not found in module\n");

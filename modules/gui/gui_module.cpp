@@ -4,6 +4,7 @@
 #include <SDL2/SDL_opengl.h>
 #include "gui_module.h"
 #include "../core/memory.h"
+#include <dlfcn.h>
 
 // ImGui headers
 #include "../../external/imgui/imgui.h"
@@ -72,6 +73,16 @@ extern "C" void gui_window_create(EngineState* state, const char* title, int wid
 }
 
 extern "C" void gui_mainloop(EngineState* state) {
+    // Load update function from logic.so for hot-reload support
+    void* logic_handle = dlopen("./build/logic.so", RTLD_NOW);
+    if (!logic_handle) {
+        fprintf(stderr, "Failed to load logic.so in mainloop: %s\n", dlerror());
+        return;
+    }
+    
+    typedef void (*logic_update_fn)(EngineState*);
+    logic_update_fn update = (logic_update_fn)dlsym(logic_handle, "update");
+    
     while (g_gui.running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -88,8 +99,9 @@ extern "C" void gui_mainloop(EngineState* state) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         
-        if (state) {
-            // User GUI code executed here
+        // Execute user GUI code from input.txt every frame
+        if (update && state) {
+            update(state);
         }
         
         ImGui::Render();
@@ -99,8 +111,11 @@ extern "C" void gui_mainloop(EngineState* state) {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(g_gui.window);
     }
+    
+    if (logic_handle) {
+        dlclose(logic_handle);
+    }
 }
-
 extern "C" void gui_quit(EngineState* state) {
     g_gui.running = 0;
     ImGui_ImplOpenGL3_Shutdown();
