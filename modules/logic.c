@@ -59,6 +59,17 @@ void execute_line(EngineState* state, char* line) {
         return;
     }
 
+    // GUI module method call with parameters: gui.window("title", width, height)
+    char gui_title[128], gui_arg1[64], gui_arg2[64];
+    if (sscanf(line, "gui.window(\"%[^\"]\", %[^,], %[^)])", gui_title, gui_arg1, gui_arg2) == 3) {
+        trim(gui_arg1);
+        trim(gui_arg2);
+        int width = atoi(gui_arg1);
+        int height = atoi(gui_arg2);
+        gui_window_create(state, gui_title, width, height);
+        return;
+    }
+
     // GUI module method call: gui.method()
     if (sscanf(line, "gui.%[^(]()", method_name) == 1) {
         handle_gui_call(state, method_name);
