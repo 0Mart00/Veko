@@ -339,15 +339,53 @@ void execute_line(EngineState* state, char* line) {
 // MAIN UPDATE LOOP
 // ============================================================================
 
-void update(EngineState* state) {
-    FILE *file = fopen("input.txt", "r");
-    if (!file) return;
+// ============================================================================
+// EXECUTION MODE DETECTION
+// ============================================================================
 
-    char line[128];
+typedef enum {
+    MODE_TERMINAL,
+    MODE_GUI
+} ExecutionMode;
+
+static ExecutionMode detect_execution_mode(EngineState* state) {
+    // Check if GUI module is imported
+    for (int i = 0; i < state->import_count; i++) {
+        if (strcmp(state->imports[i].module_name, "gui") == 0) {
+            // GUI module is imported, assume GUI mode
+            return MODE_GUI;
+        }
+    }
+    return MODE_TERMINAL;
+}
+
+// ============================================================================
+// SCRIPT EXECUTION (Pure logic, no display)
+// ============================================================================
+
+static int execute_script_file(EngineState* state, const char* filepath) {
+    FILE *file = fopen(filepath, "r");
+    if (!file) {
+        fprintf(stderr, "[ERROR] Failed to open script file: %s\n", filepath);
+        return -1;
+    }
+
+    char line[256];  // Increased buffer size for longer lines
+    int line_number = 0;
+    int error_count = 0;
+
     while (fgets(line, sizeof(line), file)) {
+        line_number++;
+        
+        // Trim whitespace
         char* trimmed = trim(line);
-        if (trimmed[0] == '#' || trimmed[0] == '\0') continue;
+        
+        // Skip empty lines and comments
+        if (trimmed[0] == '#' || trimmed[0] == '\0') {
+            continue;
+        }
 
+        // Parse control structures
         char var_name[64], left[64], op[8], right[64], class_name[64];
         int start, end;
 
@@ -357,43 +395,106 @@ void update(EngineState* state) {
             continue;
         }
 
-        // FOR loop
+        // FOR loop: for var start end
         if (sscanf(trimmed, "for %s %d %d", var_name, &start, &end) == 3) {
             handle_for_loop(state, file, var_name, start, end);
             continue;
         }
 
-        // WHILE loop
+        // WHILE loop: while left op right
         if (sscanf(trimmed, "while %s %s %s", left, op, right) == 3) {
             handle_while_loop(state, file, left, op, right);
             continue;
         }
 
-        // END keyword
-        if (strncmp(trimmed, "end", 3) == 0) continue;
+        // END keyword (loop/class terminator)
+        if (strncmp(trimmed, "end", 3) == 0) {
+            continue;
+        }
 
-        // Execute other commands
+        // Execute regular commands
         execute_line(state, line);
     }
-    fclose(file);
 
-    // Display
+    fclose(file);
+    return error_count;
+}
+
+// ============================================================================
+// DISPLAY RENDERING (Separated from execution logic)
+// ============================================================================
+
+static void render_terminal_display(EngineState* state) {
+    // Clear screen and show header
     printf("\033[H\033[J=== VEKO DYNAMIC ENGINE v3.0 (MODULAR) ===\n");
     printf("Status: ONLINE | Frame: %d\n", state->info.frame_count);
     printf("Classes: %d | Objects: %d | Imports: %d\n", 
            state->class_count, state->object_count, state->import_count);
     printf("--------------------------------------------\n");
     fflush(stdout);
-    for (int i = 0; i < state->var_count && i < 20; i++) {
-        if (state->vars[i].type == T_NUMBER)
-            printf("  (float) %-15s = %.4f\n", state->vars[i].name, state->vars[i].data.num_val);
-        else if (state->vars[i].type == T_STRING)
-            printf("  (str)   %-15s = \"%s\"\n", state->vars[i].name, state->vars[i].data.str_val);
-        else if (state->vars[i].type == T_BOOL)
-            printf("  (bool)  %-15s = %s\n", state->vars[i].name, 
-                   state->vars[i].data.bool_val ? "True" : "False");
+
+    // Display variables (limit to 20 for readability)
+    int display_limit = (state->var_count < 20) ? state->var_count : 20;
+    
+    for (int i = 0; i < display_limit; i++) {
+        switch (state->vars[i].type) {
+            case T_NUMBER:
+                printf("  (float) %-15s = %.4f\n", 
+                       state->vars[i].name, 
+                       state->vars[i].data.num_val);
+                break;
+            
+            case T_STRING:
+                printf("  (str)   %-15s = \"%s\"\n", 
+                       state->vars[i].name, 
+                       state->vars[i].data.str_val);
+                break;
+            
+            case T_BOOL:
+                printf("  (bool)  %-15s = %s\n", 
+                       state->vars[i].name, 
+                       state->vars[i].data.bool_val ? "True" : "False");
+                break;
+            
+            default:
+                break;
+        }
     }
+
+    // Show overflow indicator
     if (state->var_count > 20) {
         printf("  ... and %d more variables\n", state->var_count - 20);
+    }
+    
+    fflush(stdout);
+}
+
+// ============================================================================
+// MAIN UPDATE FUNCTION (Clean separation of concerns)
+// ============================================================================
+
+void update(EngineState* state) {
+    if (!state) {
+        fprintf(stderr, "[ERROR] update() called with NULL state\n");
+        return;
+    }
+
+    // Detect execution mode
+    ExecutionMode mode = detect_execution_mode(state);
+
+    // Execute script file
+    int result = execute_script_file(state, "input.txt");
+    if (result < 0) {
+        fprintf(stderr, "[ERROR] Script execution failed\n");
+        return;
+    }
+
+    // Increment frame counter
+    state->info.frame_count++;
+
+    // Render display ONLY in terminal mode
+    // In GUI mode, rendering is handled by ImGui in the mainloop
+    if (mode == MODE_TERMINAL) {
+        render_terminal_display(state);
     }
 }
