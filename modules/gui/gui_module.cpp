@@ -12,8 +12,9 @@
 #include "../../external/imgui/backends/imgui_impl_opengl3.h"
 
 // Global GUI state
-static GUIState g_gui = {0};
+static GUIState g_gui = {nullptr, nullptr, 1, 800, 600, ""};
 static int g_gui_initialized = 0;  // Guard flag to prevent double initialization
+static int g_window_created = 0;  // Guard flag for window creation
 
 // ============================================================================
 // CORE SYSTEM
@@ -45,6 +46,11 @@ extern "C" void gui_init(EngineState* state) {
 }
 
 extern "C" void gui_window_create(EngineState* state, const char* title, int width, int height) {
+    // Prevent double window creation
+    if (g_window_created) {
+        return;  // Window already created, skip
+    }
+    
     strncpy(g_gui.title, title, 127);
     g_gui.width = width;
     g_gui.height = height;
@@ -75,10 +81,10 @@ extern "C" void gui_window_create(EngineState* state, const char* title, int wid
     ImGui_ImplSDL2_InitForOpenGL(g_gui.window, g_gui.gl_context);
     ImGui_ImplOpenGL3_Init("#version 130");
     
+    g_window_created = 1;  // Mark window as created
     printf(">>> [GUI] Window created: %s (%dx%d)\n", title, width, height);
     (void)state;
 }
-
 extern "C" void gui_mainloop(EngineState* state) {
     // Load update function from logic.so for hot-reload support
     void* logic_handle = dlopen("./build/logic.so", RTLD_NOW);
@@ -93,30 +99,35 @@ extern "C" void gui_mainloop(EngineState* state) {
     while (g_gui.running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
+            if (g_window_created) {
+                ImGui_ImplSDL2_ProcessEvent(&event);
+            }
             if (event.type == SDL_QUIT) g_gui.running = 0;
-            if (event.type == SDL_WINDOWEVENT && 
+            if (g_window_created && event.type == SDL_WINDOWEVENT && 
                 event.window.event == SDL_WINDOWEVENT_CLOSE &&
                 event.window.windowID == SDL_GetWindowID(g_gui.window)) {
                 g_gui.running = 0;
             }
+        
         }
-        
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-        
         // Execute user GUI code from input.txt every frame
         if (update && state) {
             update(state);
         }
         
-        ImGui::Render();
-        glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
-        glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        SDL_GL_SwapWindow(g_gui.window);
+        // Only render if window was created
+        if (g_window_created) {
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+            ImGui::NewFrame();
+            
+            ImGui::Render();
+            glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
+            glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            SDL_GL_SwapWindow(g_gui.window);
+        }
     }
     
     if (logic_handle) {
@@ -125,12 +136,30 @@ extern "C" void gui_mainloop(EngineState* state) {
 }
 extern "C" void gui_quit(EngineState* state) {
     g_gui.running = 0;
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-    if (g_gui.gl_context) SDL_GL_DeleteContext(g_gui.gl_context);
-    if (g_gui.window) SDL_DestroyWindow(g_gui.window);
-    SDL_Quit();
+    
+    // Only shutdown if window was created (ImGui was initialized)
+    if (g_window_created) {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
+        ImGui::DestroyContext();
+        g_window_created = 0;
+    }
+    
+    if (g_gui.gl_context) {
+        SDL_GL_DeleteContext(g_gui.gl_context);
+        g_gui.gl_context = nullptr;
+    }
+    
+    if (g_gui.window) {
+        SDL_DestroyWindow(g_gui.window);
+        g_gui.window = nullptr;
+    }
+    
+    if (g_gui_initialized) {
+        SDL_Quit();
+        g_gui_initialized = 0;
+    }
+    
     printf(">>> [GUI] Shutdown complete\n");
     (void)state;
 }
