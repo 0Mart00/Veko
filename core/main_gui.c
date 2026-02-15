@@ -24,7 +24,6 @@ typedef void (*gui_mainloop_fn)(EngineState*);
 typedef void (*gui_quit_fn)(EngineState*);
 typedef int (*gui_is_running_fn)(EngineState*);
 typedef void (*logic_update_fn)(EngineState*);
-typedef void (*gui_window_create_fn)(EngineState*, const char*, int, int);
 
 int main() {
     // Allocate EngineState on heap
@@ -36,11 +35,9 @@ int main() {
     
     void* handle = NULL;
     logic_update_fn update = NULL;
-    gui_init_fn gui_init = NULL;
     gui_mainloop_fn gui_mainloop = NULL;
     gui_quit_fn gui_quit = NULL;
     gui_is_running_fn gui_is_running = NULL;
-    gui_window_create_fn gui_window_create = NULL;
     time_t last_mod_time = 0;
 
     printf("--- Veko Dynamic Engine v3.0 (GUI Mode) ---\n");
@@ -56,11 +53,9 @@ int main() {
 
     // Load function pointers
     update = (logic_update_fn)dlsym(handle, "update");
-    gui_init = (gui_init_fn)dlsym(handle, "gui_init");
     gui_mainloop = (gui_mainloop_fn)dlsym(handle, "gui_mainloop");
     gui_quit = (gui_quit_fn)dlsym(handle, "gui_quit");
     gui_is_running = (gui_is_running_fn)dlsym(handle, "gui_is_running");
-    gui_window_create = (gui_window_create_fn)dlsym(handle, "gui_window_create");
     
     if (!update) {
         fprintf(stderr, "Failed to find 'update' function in module\n");
@@ -71,30 +66,14 @@ int main() {
 
     last_mod_time = get_file_time(MODULE_PATH);
 
-    // Initialize GUI manually (don't call update yet)
-    printf(">>> [GUI] Initializing GUI system...\n");
-    if (gui_init) {
-        gui_init(global_state);
-    }
-    
-    // Create window with default parameters
-    if (gui_window_create) {
-        gui_window_create(global_state, "Veko Engine v3.0", 800, 600);
-    }
-    
-    // Check if GUI was initialized
-    if (!gui_is_running || !gui_is_running(global_state)) {
-        printf(">>> [GUI] Failed to initialize GUI\n");
-        dlclose(handle);
-        free(global_state);
-        return 1;
-    }
-
     printf(">>> [GUI] Starting GUI mainloop...\n");
+    printf(">>> [GUI] The mainloop will execute input.txt to initialize and render GUI\n");
     fflush(stdout);
 
     // GUI mainloop with hot-reload support
-    // The mainloop will call update() every frame to render GUI elements
+    // The mainloop will call update() every frame which will:
+    // 1. Execute input.txt (including gui.init() and gui.window())
+    // 2. Render all GUI elements within the ImGui context
     if (gui_mainloop) {
         gui_mainloop(global_state);
     } else {

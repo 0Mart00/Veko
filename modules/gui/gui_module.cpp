@@ -13,12 +13,18 @@
 
 // Global GUI state
 static GUIState g_gui = {0};
+static int g_gui_initialized = 0;  // Guard flag to prevent double initialization
 
 // ============================================================================
 // CORE SYSTEM
 // ============================================================================
 
 extern "C" void gui_init(EngineState* state) {
+    // Prevent double initialization
+    if (g_gui_initialized) {
+        return;  // Already initialized, skip
+    }
+    
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
         printf(">>> [GUI ERROR] SDL_Init failed: %s\n", SDL_GetError());
         return;
@@ -33,6 +39,7 @@ extern "C" void gui_init(EngineState* state) {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     
     g_gui.running = 1;
+    g_gui_initialized = 1;  // Mark as initialized
     printf(">>> [GUI] SDL2 initialized\n");
     (void)state;
 }
