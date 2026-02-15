@@ -1,60 +1,52 @@
 # ============================================================================
-# VEKO GUI EXAMPLE - Tkinter-like syntax with SDL2 + Dear ImGui
+# VEKO GUI EXAMPLE - Event-Driven GUI with SDL2 + Dear ImGui
 # ============================================================================
 
 # Import GUI module
 import gui
 
 # Initialize GUI system
-gui.init()
+gui_init()
 
-# Create main window (like tkinter: root = Tk())
-gui.window("Veko GUI Demo", 800, 600)
+# Create main window
+gui_window_create("Veko GUI Demo", 800, 600)
 
-# Main GUI loop
-while gui.is_running()
+# Initialize variables
+slider_value = 50
+counter = 0
+
+# Main GUI render loop (executed every frame automatically)
+while 1 == 1
     # Begin main frame
-    gui.frame_begin("Main Window")
+    gui_frame_begin("Main Window")
     
-    # Label widget (like tkinter: Label(root, text="..."))
-    gui.label("Welcome to Veko GUI!")
-    gui.label("This is a tkinter-like interface using SDL2 + Dear ImGui")
+    # Label widgets
+    gui_label("Welcome to Veko GUI!")
+    gui_label("This is an event-driven interface using SDL2 + Dear ImGui")
     
-    gui.pack()
+    gui_separator()
     
-    # Button widget (like tkinter: Button(root, text="...", command=...))
-    gui.button("Click Me!", "on_button_click")
+    # Display frame counter
+    gui_label("Frame Counter:")
+    print(counter)
+    counter = counter + 1
     
-    gui.pack()
+    gui_separator()
     
-    # Entry widget (like tkinter: Entry(root, textvariable=...))
-    gui.label("Enter your name:")
-    gui.entry("user_name")
+    # Slider widget
+    gui_label("Adjust value:")
+    gui_slider("slider_value", 0, 100)
     
-    gui.pack()
+    # Display slider value
+    gui_label("Slider Value:")
+    print(slider_value)
     
-    # Checkbox (like tkinter: Checkbutton(root, text="...", variable=...))
-    gui.checkbox("Enable feature", "feature_enabled")
+    gui_separator()
     
-    gui.pack()
-    
-    # Slider (like tkinter: Scale(root, from_=..., to=..., variable=...))
-    gui.label("Adjust value:")
-    gui.slider("slider_value", 0, 100)
-    
-    gui.pack()
-    
-    # Display current values
-    gui.label("Current Values:")
-    print(user_name)
+    # Math module test
+    gui_label("Math Module Test:")
     print(slider_value)
     
     # End main frame
-    gui.frame_end()
-    
-    # Update GUI
-    gui.update()
+    gui_frame_end()
 end
-
-# Cleanup
-gui.quit()

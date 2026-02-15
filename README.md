@@ -1,18 +1,31 @@
-# 🚀 Veko Dynamic Engine v2.0
+# 🚀 Veko Dynamic Engine v4.0
 
-**Python-szerű dinamikus szkript motor C-ben, Assembly támogatással**
+**Eseményvezérelt programozási nyelv C-ben, GUI és Math modulokkal**
 
-Veko egy valós idejű, hot-reload képes szkript motor, amely Python szintaxist és Assembly utasításokat futtat C környezetben.
+Veko egy modern, eseményvezérelt szkript motor, amely Python-szerű szintaxist, GUI támogatást (SDL2 + ImGui) és matematikai modulokat kínál C környezetben.
+
+## 🎉 v4.0 - Új Eseményvezérelt Architektúra!
+
+**Átállás frame-alapú végrehajtásról eseményvezérelt működésre:**
+- ✅ A program **egyszer fut le** inicializáláskor (nem minden frame-ben)
+- ✅ A változók **megmaradnak a memóriában**
+- ✅ A GUI **eseményvezérelt** és folyamatosan fut
+- ✅ **Nincs 500ms-es késleltetés**, azonnali reakció
+- ✅ A math modul **csak akkor számol**, amikor kell
+
+Részletek: [CHANGELOG.md](CHANGELOG.md)
 
 ---
 
 ## ✨ Főbb Funkciók
 
+- 🎨 **GUI Támogatás** - SDL2 + Dear ImGui alapú grafikus felület
+- 🧮 **Math Modul** - Trigonometrikus és matematikai függvények
 - 🐍 **20+ Python Built-in Függvény** (abs, int, float, str, len, max, min, pow, round, sum, chr, ord, hex, bin, oct, stb.)
-- ⚙️ **Assembly Nyelv Támogatás** (MOV, ADD, SUB, MUL, XOR utasítások)
-- 🔄 **FOR és WHILE Ciklusok**
+- 🎯 **Eseményvezérelt Architektúra** - Modern, reaktív programozási modell
+- 🔄 **FOR és WHILE Ciklusok** - Teljes ciklus támogatás
 - 📊 **Dinamikus Típusrendszer** (float, string, bool, list, dict)
-- 🔥 **Hot-Reload** - Élő kód módosítás futás közben
+- 🏗️ **OOP Támogatás** - Osztályok és objektumok
 - 🎯 **Modular Architecture** - Dinamikus modul betöltés
 
 ---
@@ -20,9 +33,19 @@ Veko egy valós idejű, hot-reload képes szkript motor, amely Python szintaxist
 ## 🛠️ Telepítés és Használat
 
 ### Előfeltételek
-- GCC fordító
+- GCC/G++ fordító
 - Make build tool
+- SDL2 fejlesztői könyvtárak
+- OpenGL fejlesztői könyvtárak
 - Linux/Unix környezet
+
+```bash
+# Ubuntu/Debian
+sudo apt-get install build-essential libsdl2-dev libgl1-mesa-dev
+
+# Fedora/RHEL
+sudo dnf install gcc gcc-c++ make SDL2-devel mesa-libGL-devel
+```
 
 ### Fordítás
 ```bash
@@ -30,19 +53,84 @@ make clean && make
 ```
 
 ### Futtatás
+
+**Egyszerű példa (nincs GUI):**
 ```bash
+echo "x = 10
+y = 20
+z = x + y
+print(z)" > input.txt
+
 ./build/engine_host
 ```
 
-### Élő Módosítás (Hot-Reload)
+**GUI példa:**
 ```bash
-# Másik terminálban
-./scripts/watcher.sh
+cp gui_example.ve input.txt
+./build/engine_host
 ```
 
 ---
 
 ## 📝 Szintaxis Példák
+
+### GUI Alkalmazás (Új v4.0!)
+```veko
+# Import GUI module
+import gui
+
+# Initialize GUI
+gui_init()
+gui_window_create("My App", 800, 600)
+
+# Initialize variables
+counter = 0
+slider_value = 50
+
+# Main render loop (runs every frame)
+while 1 == 1
+    gui_frame_begin("Main Window")
+    
+    # Labels
+    gui_label("Welcome to Veko GUI!")
+    gui_separator()
+    
+    # Display counter
+    gui_label("Frame Counter:")
+    print(counter)
+    counter = counter + 1
+    
+    gui_separator()
+    
+    # Slider widget
+    gui_label("Adjust value:")
+    gui_slider("slider_value", 0, 100)
+    
+    # Display slider value
+    gui_label("Current value:")
+    print(slider_value)
+    
+    gui_frame_end()
+end
+```
+
+### Math Modul
+```veko
+import math
+
+# Trigonometric functions
+angle = 1.57
+sin_val = math.sin(angle)
+cos_val = math.cos(angle)
+tan_val = math.tan(angle)
+
+# Other math functions
+sqrt_val = math.sqrt(16)
+pow_val = math.pow(2, 8)
+
+print(sin_val)
+print(sqrt_val)
+```
 
 ### Python Built-in Függvények
 ```python

@@ -9,6 +9,7 @@
 #define MAX_LIST_SIZE 100
 #define MAX_IMPORTS 10
 #define NAME_LEN 64
+#define MAX_LOOP_LINES 100
 
 typedef struct {
     double wealth;
@@ -87,6 +88,19 @@ typedef struct {
     int loaded;
 } ImportedModule;
 
+// GUI render callback
+typedef void (*gui_render_callback_fn)(void* state);
+
+// While loop storage (for GUI mainloop)
+typedef struct {
+    char left[NAME_LEN];
+    char op[8];
+    char right[NAME_LEN];
+    char lines[MAX_LOOP_LINES][128];
+    int line_count;
+    int active;
+} WhileLoopData;
+
 // Fő állapot
 typedef struct {
     BaseState info;
@@ -100,6 +114,13 @@ typedef struct {
     int func_count;
     ImportedModule imports[MAX_IMPORTS];
     int import_count;
+    
+    // GUI render callback (called every frame in GUI mainloop)
+    gui_render_callback_fn gui_render_callback;
+    void* gui_render_data;
+    
+    // While loop data (for GUI mainloop rendering)
+    WhileLoopData gui_loop;
 } EngineState;
 
 typedef void (*logic_update_fn)(EngineState* state);
