@@ -88,8 +88,9 @@ extern "C" void gui_mainloop(EngineState* state) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         
-        if (state) {
-            // User GUI code executed here
+        // Call user GUI render callback (Veko GUI code)
+        if (state && state->gui_render_callback) {
+            state->gui_render_callback(state->gui_render_data);
         }
         
         ImGui::Render();
@@ -98,6 +99,11 @@ extern "C" void gui_mainloop(EngineState* state) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(g_gui.window);
+        
+        // Increment frame counter
+        if (state) {
+            state->info.frame_count++;
+        }
     }
 }
 
@@ -662,5 +668,9 @@ extern "C" void handle_gui_call(EngineState* state, char* method_name) {
 
 extern "C" void import_gui_module(EngineState* state) {
     printf(">>> [GUI] Module imported\n");
-    state->import_count++;
+    if (state->import_count < MAX_IMPORTS) {
+        strncpy(state->imports[state->import_count].module_name, "gui", NAME_LEN - 1);
+        state->imports[state->import_count].loaded = 1;
+        state->import_count++;
+    }
 }

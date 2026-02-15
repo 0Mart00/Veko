@@ -27,43 +27,47 @@ int main() {
     }
     
     void* handle = NULL;
-    logic_update_fn update = NULL;
-    time_t last_mod_time = 0;
+    typedef void (*logic_initialize_fn)(EngineState*);
+    typedef void (*logic_mainloop_fn)(EngineState*);
+    
+    logic_initialize_fn initialize = NULL;
+    logic_mainloop_fn mainloop = NULL;
 
-    printf("--- Dynamic Logic Engine Started ---\n");
+    printf("--- VEKO Engine Started (Event-Driven Mode) ---\n");
     fflush(stdout);
 
-    while (1) {
-        time_t current_mod_time = get_file_time(MODULE_PATH);
-
-        // Csak akkor töltjük újra a modult, ha a fájl megváltozott (hot-reload)
-        if (current_mod_time > last_mod_time) {
-            if (handle) {
-                dlclose(handle); // Zárjuk be a régit
-                printf(">>> [HOT-RELOAD] Reloading module...\n");
-                fflush(stdout);
-            }
-            
-            handle = dlopen(MODULE_PATH, RTLD_NOW);
-            
-            if (!handle) {
-                fprintf(stderr, "Waiting for module: %s\n", dlerror());
-                fflush(stderr);
-            } else {
-                update = (logic_update_fn)dlsym(handle, "update");
-                last_mod_time = current_mod_time;
-            }
-        }
-
-        // Call update every frame (not just when module loads!)
-        if (update) {
-            update(global_state);
-        }
-
-        global_state->info.frame_count++; 
-        usleep(500000); 
+    // Load the logic module
+    handle = dlopen(MODULE_PATH, RTLD_NOW);
+    
+    if (!handle) {
+        fprintf(stderr, "Failed to load module: %s\n", dlerror());
+        free(global_state);
+        return 1;
     }
     
+    // Get the initialize and mainloop functions
+    initialize = (logic_initialize_fn)dlsym(handle, "initialize");
+    mainloop = (logic_mainloop_fn)dlsym(handle, "mainloop");
+    
+    if (!initialize || !mainloop) {
+        fprintf(stderr, "Failed to find initialize/mainloop functions\n");
+        dlclose(handle);
+        free(global_state);
+        return 1;
+    }
+    
+    // Initialize the Veko program (run once)
+    printf(">>> [INIT] Running Veko initialization...\n");
+    fflush(stdout);
+    initialize(global_state);
+    
+    // Enter the main event loop (GUI takes control)
+    printf(">>> [MAINLOOP] Entering event-driven mainloop...\n");
+    fflush(stdout);
+    mainloop(global_state);
+    
+    // Cleanup
+    printf(">>> [SHUTDOWN] Cleaning up...\n");
     if (handle) {
         dlclose(handle);
     }
