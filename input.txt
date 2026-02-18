@@ -1,5 +1,4 @@
-# Simple test
-x = 5
-y = 10
-z = x + y
-print(z)
+import gui
+gui.init()
+gui.window("Veko GUI Test", 800, 600)
+gui.label("Hello World!")

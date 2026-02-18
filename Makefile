@@ -52,13 +52,18 @@ IMGUI_OBJS = $(BUILD_DIR)/imgui.o \
 ALL_OBJS = $(CORE_OBJS) $(MATH_OBJS) $(OOP_OBJS) $(BUILTINS_OBJS) $(GUI_OBJS) $(MAIN_OBJ) $(IMGUI_OBJS)
 
 # Targets
-all: setup $(BUILD_DIR)/engine_host $(BUILD_DIR)/logic.so
+all: setup $(BUILD_DIR)/engine $(BUILD_DIR)/engine_gui $(BUILD_DIR)/logic.so
 
 setup:
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/engine_host: core/main.c
-	$(CC) core/main.c -o $(BUILD_DIR)/engine_host -ldl
+# Terminal-based engine (original)
+$(BUILD_DIR)/engine: core/main.c
+	$(CC) core/main.c -o $(BUILD_DIR)/engine -ldl
+
+# GUI-based engine (new)
+$(BUILD_DIR)/engine_gui: core/main_gui.c
+	$(CC) core/main_gui.c -o $(BUILD_DIR)/engine_gui -ldl
 
 # Core module (C)
 $(BUILD_DIR)/memory.o: $(CORE_SRCS)
@@ -107,9 +112,10 @@ $(BUILD_DIR)/imgui_impl_opengl3.o: $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 	$(CXX) $(CXXFLAGS) -c $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp -o $(BUILD_DIR)/imgui_impl_opengl3.o -I$(IMGUI_DIR)
 
 
-# Összes objektum linkelése a megosztott könyvtárba
+# Link all objects into shared library
 $(BUILD_DIR)/logic.so: $(ALL_OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(MATH_LIB) $(GUI_LIBS)
+
 clean:
 	rm -rf $(BUILD_DIR)/*
 
