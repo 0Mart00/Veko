@@ -1,361 +1,207 @@
-# 🚀 Veko Dynamic Engine v4.0
+# Veko Dynamic Engine v4.0
 
-**Eseményvezérelt programozási nyelv C-ben, GUI és Math modulokkal**
+An event-driven scripting language and runtime environment implemented in C, featuring integrated GUI capabilities and a high-performance mathematics subsystem.
 
-Veko egy modern, eseményvezérelt szkript motor, amely Python-szerű szintaxist, GUI támogatást (SDL2 + ImGui) és matematikai modulokat kínál C környezetben.
+## Overview
 
-## 🎉 v4.0 - Új Eseményvezérelt Architektúra!
+Veko is a lightweight, high-performance scripting runtime executing a Python-influenced syntax with inline assembly generation capabilities. Version 4.0 introduces a stateful, reactive programming model, moving away from stateless frame-bound execution architectures.
 
-**Átállás frame-alapú végrehajtásról eseményvezérelt működésre:**
-- ✅ A program **egyszer fut le** inicializáláskor (nem minden frame-ben)
-- ✅ A változók **megmaradnak a memóriában**
-- ✅ A GUI **eseményvezérelt** és folyamatosan fut
-- ✅ **Nincs 500ms-es késleltetés**, azonnali reakció
-- ✅ A math modul **csak akkor számol**, amikor kell
+### Key Architectural Updates in v4.0
 
-Részletek: [CHANGELOG.md](CHANGELOG.md)
+* **Stateful Memory Persistence:** Scripts execute strictly once during the lifecycle initialization phase. Subsystem states and variables persist natively in virtual memory across runtime frames.
+* **Asynchronous GUI Processing:** The graphical user interface operates via an asynchronous event loop, eliminating arbitrary thread sleep latency thresholds (0ms polling delay).
+* **On-Demand Computation Subsystems:** Mathematics pipelines remain idle until explicit invocation, minimizing CPU overhead during continuous frame rendering.
 
 ---
 
-## ✨ Főbb Funkciók
+## Technical Specifications & Features
 
-- 🎨 **GUI Támogatás** - SDL2 + Dear ImGui alapú grafikus felület
-- 🧮 **Math Modul** - Trigonometrikus és matematikai függvények
-- 🐍 **20+ Python Built-in Függvény** (abs, int, float, str, len, max, min, pow, round, sum, chr, ord, hex, bin, oct, stb.)
-- 🎯 **Eseményvezérelt Architektúra** - Modern, reaktív programozási modell
-- 🔄 **FOR és WHILE Ciklusok** - Teljes ciklus támogatás
-- 📊 **Dinamikus Típusrendszer** (float, string, bool, list, dict)
-- 🏗️ **OOP Támogatás** - Osztályok és objektumok
-- 🎯 **Modular Architecture** - Dinamikus modul betöltés
+* **Asynchronous Graphical Subsystem:** Powered by a customized wrapper binding SDL2 and Dear ImGui.
+* **Modular Mathematics Subsystem:** Dynamic loading of transcendental, trigonometric, and arithmetic pipelines.
+* **Standard Built-in Library:** Includes a compliant subset of Python-standard primitives (`abs`, `int`, `float`, `str`, `len`, `max`, `min`, `pow`, `round`, `sum`, `chr`, `ord`, `hex`, `bin`, `oct`).
+* **Dynamic Type Topology:** Dynamic type inference engine natively evaluating `float`, `string`, `bool`, `list`, and `dict` structures.
+* **Control Flow Evaluators:** Iterative `for` blocks and conditional `while` loops with built-in infinite loop mitigation safeguards.
+* **Low-Level Assembly Interfaces:** Inline ISA emulation subsystem supporting explicit register allocation (`eax`, `ebx`, `ecx`) and arithmetic operators (`mov`, `add`, `sub`, `mul`, `xor`).
+
+### Engine Limits & Boundary Constraints
+
+* **Maximum Concurrent Symbol Table Entries:** 100 allocation slots
+* **Infinite Loop Mitigation Threshold:** 1000 loop cycles maximum
+* **Maximum Control Flow Block Size:** 100 logical lines per routine
 
 ---
 
-## 🛠️ Telepítés és Használat
+## Installation & Deployment
 
-### Előfeltételek
-- GCC/G++ fordító
-- Make build tool
-- SDL2 fejlesztői könyvtárak
-- OpenGL fejlesztői könyvtárak
-- Linux/Unix környezet
+### Subsystem Dependencies
+
+#### Debian / Ubuntu Architecture
 
 ```bash
-# Ubuntu/Debian
+sudo apt-get update
 sudo apt-get install build-essential libsdl2-dev libgl1-mesa-dev
 
-# Fedora/RHEL
-sudo dnf install gcc gcc-c++ make SDL2-devel mesa-libGL-devel
 ```
 
-### Fordítás
+#### Fedora / RedHat Architecture
+
+```bash
+sudo dnf install gcc gcc-c++ make SDL2-devel mesa-libGL-devel
+
+```
+
+### Build Instructions
+
+To compile the primary host binary and execute modular library linkage:
+
 ```bash
 make clean && make
+
 ```
 
-### Futtatás
+To recompile the shared logic modules exclusively:
 
-**Egyszerű példa (nincs GUI):**
 ```bash
-echo "x = 10
-y = 20
-z = x + y
-print(z)" > input.txt
+make module
 
-./build/engine_host
 ```
 
-**GUI példa:**
+### Execution Directives
+
+#### Headless Mode (Standard CLI Execution)
+
+```bash
+echo -e "x = 10\ny = 20\nz = x + y\nprint(z)" > input.txt
+./build/engine_host
+
+```
+
+#### Graphical Mode (GUI Subsystem Instantiation)
+
 ```bash
 cp gui_example.ve input.txt
 ./build/engine_host
+
 ```
 
 ---
 
-## 📝 Szintaxis Példák
+## Subsystem APIs & Reference Manual
 
-### GUI Alkalmazás (Új v4.0!)
-```veko
-# Import GUI module
+### Native Environment Built-ins
+
+| Target Domain | Function Signature | Operational Specification |
+| --- | --- | --- |
+| **Arithmetic** | `abs(x)` | Computes the absolute scalar value. |
+|  | `int(x)` / `float(x)` | Casts the expression to the respective numeric primitive. |
+|  | `round(x)` | Performs standard arithmetic rounding operations. |
+|  | `pow(x, y)` | Raises base $x$ to the exponent power $y$. |
+|  | `divmod(x, y)` | Returns the division quotient and remainder vector. |
+|  | `sum(start, end)` | Computes the aggregate sum across the designated range. |
+|  | `max(a, b)` / `min(a, b)` | Returns the extreme boundary values. |
+| **String Manipulation** | `str(x)` | Converts the target expression into a string primitive. |
+|  | `len(x)` | Evaluates the byte length or element count of the object. |
+|  | `chr(x)` / `ord(x)` | Performs ASCII character/integer mappings. |
+| **Base Conversions** | `hex(x)` / `bin(x)` / `oct(x)` | Serializes integer types to radix-16, radix-2, or radix-8 string formats. |
+| **Reflection & IO** | `type(x)` / `typeof(x)` | Inspects the runtime allocation type descriptor. |
+|  | `print(x)` | Standard output stream buffer flush writer. |
+
+### Inline ISA Assembly Subsystem
+
+Instruction syntax formatting: `__asm__("opcode destination source")` or `asm("opcode destination source")`.
+
+* `mov [reg] [val]` — Loads an immediate value or secondary register state into the destination register.
+* `add [reg1] [reg2]` — Performs binary addition: $\text{reg1} \leftarrow \text{reg1} + \text{reg2}$.
+* `sub [reg1] [reg2]` — Performs binary subtraction: $\text{reg1} \leftarrow \text{reg1} - \text{reg2}$.
+* `mul [reg1] [reg2]` — Multiplies designated registers: $\text{reg1} \leftarrow \text{reg1} \times \text{reg2}$.
+* `xor [reg1] [reg2]` — Computes bitwise exclusive-OR logical operations.
+
+---
+
+## Implementation Examples
+
+### Event-Driven User Interface Construction (`gui.ve`)
+
+```python
+# Link graphical subsystem libraries
 import gui
 
-# Initialize GUI
+# Initialize window configuration contexts
 gui_init()
-gui_window_create("My App", 800, 600)
+gui_window_create("Veko Execution Environment", 800, 600)
 
-# Initialize variables
+# Instantiate persistent global scope variables
 counter = 0
 slider_value = 50
 
-# Main render loop (runs every frame)
+# Main Reactive Frame Evaluation Loop
 while 1 == 1
-    gui_frame_begin("Main Window")
+    gui_frame_begin("Control Panel")
     
-    # Labels
-    gui_label("Welcome to Veko GUI!")
+    gui_label("Veko Dynamic Engine Subsystem Engine")
     gui_separator()
     
-    # Display counter
-    gui_label("Frame Counter:")
+    gui_label("Telemetry Frame Index:")
     print(counter)
     counter = counter + 1
     
     gui_separator()
     
-    # Slider widget
-    gui_label("Adjust value:")
+    gui_label("Control Variable Modification:")
     gui_slider("slider_value", 0, 100)
     
-    # Display slider value
-    gui_label("Current value:")
+    gui_label("Evaluated State:")
     print(slider_value)
     
     gui_frame_end()
 end
+
 ```
 
-### Math Modul
-```veko
+### Transcendental Mathematics Pipeline (`math.ve`)
+
+```python
 import math
 
-# Trigonometric functions
+# Analytical coordinate definitions
 angle = 1.57
 sin_val = math.sin(angle)
 cos_val = math.cos(angle)
-tan_val = math.tan(angle)
 
-# Other math functions
+# Algorithmic calculation verification
 sqrt_val = math.sqrt(16)
 pow_val = math.pow(2, 8)
 
 print(sin_val)
 print(sqrt_val)
-```
 
-### Python Built-in Függvények
-```python
-# Matematikai műveletek
-result = abs(-10)         # 10.00
-power = pow(2, 8)         # 256.00
-maximum = max(10, 20)     # 20.00
-
-# String műveletek
-name = "Veko"
-length = len(name)        # 4.00
-char = chr(65)            # "A"
-
-# Számrendszer konverziók
-hex_val = hex(255)        # "0xff"
-bin_val = bin(15)         # "0b1111"
-
-# Típus konverziók
-int_val = int(3.14)       # 3.00
-str_val = str(42)         # "42.00"
-bool_val = bool(1)        # True
-```
-
-### Ciklusok
-```python
-# FOR ciklus
-counter = 0
-for i 0 10
-  counter = counter + i
-end
-
-# WHILE ciklus
-x = 1
-while x < 100
-  x = x * 2
-end
-```
-
-### Assembly Műveletek
-```assembly
-# Regiszter műveletek
-__asm__("mov eax 100")
-__asm__("mov ebx 50")
-asm("add eax ebx")        # eax = 150
-asm("mul eax 2")          # eax = 300
-asm("xor ecx ecx")        # ecx = 0
-
-# Eredmény kiírása
-print(eax)
 ```
 
 ---
 
-## 📚 Támogatott Függvények
-
-### Matematikai
-- `abs(x)` - Abszolút érték
-- `int(x)` - Egész számmá alakítás
-- `float(x)` - Lebegőpontos számmá alakítás
-- `round(x)` - Kerekítés
-- `pow(x, y)` - Hatványozás
-- `divmod(x, y)` - Osztás
-- `sum(start, end)` - Összegzés tartományban
-- `max(a, b)` - Maximum
-- `min(a, b)` - Minimum
-
-### String
-- `str(x)` - Stringgé alakítás
-- `len(x)` - Hossz
-- `chr(x)` - ASCII kód → karakter
-- `ord(x)` - Karakter → ASCII kód
-
-### Számrendszer
-- `hex(x)` - Hexadecimális
-- `bin(x)` - Bináris
-- `oct(x)` - Oktális
-
-### Típus
-- `bool(x)` - Boolean konverzió
-- `type(x)` - Típus lekérdezés
-- `typeof(x)` - Típus ellenőrzés
-
-### I/O
-- `print(x)` - Kiírás
-
-### Assembly
-- `__asm__("instruction")` - Assembly utasítás
-- `asm("instruction")` - Assembly utasítás (rövid forma)
-
-**Támogatott Assembly műveletek:**
-- `mov reg value` - Érték betöltés
-- `add reg1 reg2` - Összeadás
-- `sub reg1 reg2` - Kivonás
-- `mul reg1 reg2` - Szorzás
-- `xor reg1 reg2` - XOR művelet
-
----
-
-## 📂 Projekt Struktúra
+## Repository Architecture
 
 ```
 Veko/
 ├── core/
-│   └── main.c              # Fő motor (dynamic loader)
+│   └── main.c              # Dynamic linker host and core orchestration engine
 ├── modules/
-│   └── logic.c             # Szkript végrehajtó modul
+│   └── logic.c             # Virtual machine parsing and instruction execution pipeline
 ├── include/
-│   └── interface.h         # Típus definíciók
+│   └── interface.h         # System-wide explicit data structures and type signatures
 ├── build/
-│   ├── engine_host         # Fő program
-│   └── logic.so            # Dinamikus modul
+│   ├── engine_host         # Compiled host entry-point execution file
+│   └── logic.so            # Dynamically loaded runtime shared object library
 ├── scripts/
-│   └── watcher.sh          # Hot-reload script
-├── input.txt               # Szkript fájl
-└── Makefile                # Build konfiguráció
+│   └── watcher.sh          # Hot-reloading daemon for code injection automation
+├── input.txt               # Default runtime script execution buffer target
+└── Makefile                # Automations configuration pipeline file
+
 ```
 
 ---
 
-## 🎯 Példa Program
+## Licensing & Architecture Maintenance
 
-```python
-# Veko Dynamic Engine v2.0 - Példa
-
-# Változók
-x = 10
-y = 20
-name = "Veko"
-
-# Built-in függvények
-sum_val = x + y
-power = pow(2, 10)
-hex_val = hex(255)
-
-# Ciklus
-counter = 0
-for i 1 5
-  counter = counter + i
-end
-
-# Assembly
-__asm__("mov eax 100")
-asm("add eax 50")
-
-# Kimenet
-print(sum_val)
-print(power)
-print(eax)
-type(name)
-```
-
----
-
-## 🔧 Fejlesztés
-
-### Modul Újrafordítás
-```bash
-make module
-```
-
-### Teljes Újrafordítás
-```bash
-make clean && make
-```
-
-### Debug Mód
-```bash
-gcc -g -Wall -Wextra core/main.c -o build/engine_host -ldl
-```
-
----
-
-## 📖 Dokumentáció
-
-### input.txt Szintaxis
-- Egy parancs soronként
-- `#` karakterrel kezdődő sorok megjegyzések
-- Változók automatikusan létrejönnek értékadáskor
-- Ciklusok `end` kulcsszóval zárulnak
-
-### Típusok
-- **float** - Lebegőpontos számok (alapértelmezett)
-- **str** - Szövegek (idézőjelek között)
-- **bool** - Boolean értékek (True/False)
-- **list** - Listák (előkészítve)
-- **dict** - Dictionary-k (előkészítve)
-
----
-
-## 🚀 Teljesítmény
-
-- **Frissítési gyakoriság:** 0.5 másodperc (500ms)
-- **Maximum változók:** 100
-- **Maximum ciklus iterációk:** 1000 (while védelem)
-- **Maximum ciklus törzs:** 100 sor
-
----
-
-## 📜 Licenc
-
-MIT License - Szabad felhasználás és módosítás
-
----
-
-## 🤝 Közreműködés
-
-Pull request-ek és issue-k várhatóak!
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
----
-
-## 📞 Kapcsolat
-
-**Projekt:** Veko Dynamic Engine  
-**Verzió:** 2.0  
-**Nyelv:** C + Python-like syntax + Assembly
-
----
-
-**Készítette:** 0Mart00  
-**Utolsó frissítés:** 2024
-
-🎨 **Happy Coding!** 🚀
+* **License Model:** MIT License — Open-source usage, modification, and redistribution criteria permitted.
+* **Maintainer Profile:** Developed by `0Mart00`.
